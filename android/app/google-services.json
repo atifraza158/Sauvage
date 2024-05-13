@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "269095760236",
+    "project_id": "sauvage-91416",
+    "storage_bucket": "sauvage-91416.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269095760236:android:006288e837b61dc415c349",
+        "android_client_info": {
+          "package_name": "com.food.sauvage"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYrWiXs3QCvHkdi111TQIfEf5hvI-2jCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
