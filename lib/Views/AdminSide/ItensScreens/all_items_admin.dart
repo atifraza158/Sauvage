@@ -14,9 +14,9 @@ class AllItemsAdmin extends StatefulWidget {
 }
 
 class _AllItemsAdminState extends State<AllItemsAdmin> {
-  Stream? itensStream;
+  Stream? itemsStream;
   getItems() async {
-    itensStream = await DatabaseServices().getData('items');
+    itemsStream = await DatabaseServices().getData('items');
     setState(() {});
   }
 
@@ -58,7 +58,7 @@ class _AllItemsAdminState extends State<AllItemsAdmin> {
 
   Widget getItemsWidget() {
     return StreamBuilder(
-      stream: itensStream,
+      stream: itemsStream,
       builder: (context, AsyncSnapshot snapshot) {
         if (snapshot.hasData) {
           return GridView.builder(
