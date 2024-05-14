@@ -1,10 +1,13 @@
+import 'package:dine_in/Controllers/database_services.dart';
 import 'package:dine_in/Controllers/firebase_services.dart';
+import 'package:dine_in/Views/AuthScreens/login_screen.dart';
 import 'package:dine_in/Views/Utils/Components/common_field.dart';
 import 'package:dine_in/Views/Utils/Components/login_button.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:get/get.dart';
+import 'package:random_string/random_string.dart';
 
 import '../Utils/Styles/theme.dart';
 
@@ -22,6 +25,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   var passwordcontroller = TextEditingController();
   var cpasswordcontroller = TextEditingController();
   var namecontroller = TextEditingController();
+
+  DatabaseServices controller = Get.put(DatabaseServices());
 
   // Confirming the both password fields are same or not
   String? matchPassword(value) {
@@ -122,31 +127,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(
                         height: 20,
                       ),
-                      const Text(
-                        'phone no',
-                        style: CustomTextStyles.smallBlackColorStyle,
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      SizedBox(
-                        height: 75,
-                        child: IntlPhoneField(
-                          controller: phonecontroller,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            hintText: '000 000 0000',
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                          ),
-                          validator: (value) {
-                            if (value!.isValidNumber()) {
-                              return 'Phone Number';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
+                      // const Text(
+                      //   'phone no',
+                      //   style: CustomTextStyles.smallBlackColorStyle,
+                      // ),
+                      // const SizedBox(
+                      //   height: 5,
+                      // ),
+                      // SizedBox(
+                      //   height: 75,
+                      //   child: IntlPhoneField(
+                      //     controller: phonecontroller,
+                      //     keyboardType: TextInputType.number,
+                      //     decoration: InputDecoration(
+                      //       hintText: '000 000 0000',
+                      //       border: OutlineInputBorder(
+                      //           borderRadius: BorderRadius.circular(8)),
+                      //     ),
+                      //     validator: (value) {
+                      //       if (value!.isValidNumber()) {
+                      //         return 'Phone Number';
+                      //       }
+                      //       return null;
+                      //     },
+                      //   ),
+                      // ),
                       const Text(
                         'Password',
                         style: CustomTextStyles.smallBlackColorStyle,
@@ -193,17 +198,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Center(
                         child: CommonButton(
                           onPressed: () {
-                            FirebaseServices().register(
-                              context,
-                              namecontroller.text.toString(),
-                              emailcontroller.text.toString(),
-                              phonecontroller.text.toString(),
-                              passwordcontroller.text.toString(),
-                            );
+                            if (_formkey.currentState!.validate()) {
+                              String id = randomAlphaNumeric(7);
+                              Map<String, dynamic> userData = {
+                                'name': namecontroller.text.toString(),
+                                'email': emailcontroller.text.toString(),
+                                'password': passwordcontroller.text.toString(),
+                              };
+                              DatabaseServices()
+                                  .addData(userData, id, 'user')
+                                  .whenComplete(() {
+                                Get.snackbar(
+                                    "Success", 'User Created Successfully');
+                                Get.offAll(LoginScreen());
+                              });
+                            }
+                            // FirebaseServices().register(
+                            //   context,
+                            //   namecontroller.text.toString(),
+                            //   emailcontroller.text.toString(),
+                            //   phonecontroller.text.toString(),
+                            //   passwordcontroller.text.toString(),
+                            // );
                           },
-                          child: Text(
-                            'Signup',
-                            style: CustomTextStyles.commonButtonStyle,
+                          child: Obx(
+                            () => controller.loader.isTrue
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppTheme.whiteColor,
+                                    ),
+                                  )
+                                : Text(
+                                    'Signup',
+                                    style: CustomTextStyles.commonButtonStyle,
+                                  ),
                           ),
                         ),
                       ),

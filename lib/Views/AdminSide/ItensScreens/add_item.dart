@@ -10,6 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:random_string/random_string.dart';
 import 'package:text_area/text_area.dart';
@@ -197,12 +198,7 @@ class _AddItemState extends State<AddItem> {
                             .then((value) => {
                                   Fluttertoast.showToast(
                                       msg: 'Item Added Successfully'),
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(
-                                    builder: (context) {
-                                      return AllItemsAdmin();
-                                    },
-                                  ))
+                                  Get.offAll(AllItemsAdmin()),
                                 });
                       }
                     },

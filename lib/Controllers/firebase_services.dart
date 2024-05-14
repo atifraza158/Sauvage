@@ -4,6 +4,7 @@ import 'package:dine_in/Views/UserSide/DrawerScreens/user_drawer_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 
 import '../Views/AuthScreens/login_screen.dart';
 
@@ -22,11 +23,7 @@ class FirebaseServices {
           .then((value) => {
                 loader = false,
                 Fluttertoast.showToast(msg: "Login Successfully"),
-                Navigator.pushReplacement(context, MaterialPageRoute(
-                  builder: (context) {
-                    return UserDrawerScreen();
-                  },
-                )),
+                Get.offAll(UserDrawerScreen()),
               });
     } on SocketException catch (_) {
       Fluttertoast.showToast(msg: 'Please Connect to internet');
@@ -44,11 +41,8 @@ class FirebaseServices {
           .createUserWithEmailAndPassword(email: email, password: password)
           .then((value) {
         Fluttertoast.showToast(msg: 'Account Created Successfully');
-        Navigator.pushReplacement(context, MaterialPageRoute(
-          builder: (context) {
-            return LoginScreen();
-          },
-        ));
+
+        Get.offAll(LoginScreen());
       }).onError((error, stackTrace) {
         Fluttertoast.showToast(msg: error.toString());
       });

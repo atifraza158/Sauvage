@@ -258,7 +258,10 @@ class _AllTakeOutsState extends State<AllTakeOuts> {
             color:
                 isSelected == index ? AppTheme.themeColor : Colors.transparent,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: isSelected == index ? AppTheme.themeColor : AppTheme.blackColor),
+            border: Border.all(
+                color: isSelected == index
+                    ? AppTheme.themeColor
+                    : AppTheme.blackColor),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),

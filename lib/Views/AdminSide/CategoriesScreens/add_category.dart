@@ -11,6 +11,7 @@ import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:random_string/random_string.dart';
 
@@ -71,7 +72,7 @@ class _AddCategoryAdminState extends State<AddCategoryAdmin> {
                   ),
                   SizedBox(height: 50),
                   CommonButton(
-                    child: DatabaseServices().loader
+                    child: DatabaseServices().loader.isTrue
                         ? Center(
                             child: CircularProgressIndicator(
                               color: AppTheme.whiteColor,
@@ -118,12 +119,7 @@ class _AddCategoryAdminState extends State<AddCategoryAdmin> {
                             .then((value) => {
                                   Fluttertoast.showToast(
                                       msg: 'Category Added Successfully'),
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(
-                                    builder: (context) {
-                                      return AllCategoriesAdminScreen();
-                                    },
-                                  ))
+                                  Get.offAll(AllCategoriesAdminScreen()),
                                 });
                       }
                     },
