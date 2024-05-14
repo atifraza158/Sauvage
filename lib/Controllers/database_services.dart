@@ -13,15 +13,29 @@ class DatabaseServices extends GetxController {
           .doc(id)
           .set(data)
           .then(
-            (value) => loader(true),
+            (value) => loader(false),
           );
     } catch (e) {
       print(e.toString());
-      loader(true);
+      loader(false);
     }
   }
 
   Future<Stream<QuerySnapshot>> getData(String collectName) async {
     return FirebaseFirestore.instance.collection(collectName).snapshots();
+  }
+
+  Future<bool> doesEmailExist(String email) async {
+    final firestore = FirebaseFirestore.instance;
+
+    // Create a query to check for documents where 'email' field matches
+    final query = await firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
+
+    // Check if any documents were found
+    return query.docs.isNotEmpty;
   }
 }

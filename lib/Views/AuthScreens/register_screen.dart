@@ -1,5 +1,4 @@
 import 'package:dine_in/Controllers/database_services.dart';
-import 'package:dine_in/Controllers/firebase_services.dart';
 import 'package:dine_in/Views/AuthScreens/login_screen.dart';
 import 'package:dine_in/Views/Utils/Components/common_field.dart';
 import 'package:dine_in/Views/Utils/Components/login_button.dart';
@@ -197,29 +196,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       Center(
                         child: CommonButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formkey.currentState!.validate()) {
                               String id = randomAlphaNumeric(7);
                               Map<String, dynamic> userData = {
                                 'name': namecontroller.text.toString(),
+                                'role': 'user',
                                 'email': emailcontroller.text.toString(),
                                 'password': passwordcontroller.text.toString(),
                               };
-                              DatabaseServices()
-                                  .addData(userData, id, 'user')
-                                  .whenComplete(() {
-                                Get.snackbar(
-                                    "Success", 'User Created Successfully');
-                                Get.offAll(LoginScreen());
-                              });
+                              bool doesExist = await controller
+                                  .doesEmailExist(emailcontroller.text);
+                              print(doesExist);
+
+                              if (!doesExist) {
+                                Get.snackbar('Error', "Email is Already Exist");
+                              } else {
+                                controller
+                                    .addData(userData, id, 'user')
+                                    .whenComplete(() {
+                                  Get.snackbar(
+                                      "Success", 'User Created Successfully');
+                                  Get.offAll(() => LoginScreen());
+                                });
+                              }
                             }
-                            // FirebaseServices().register(
-                            //   context,
-                            //   namecontroller.text.toString(),
-                            //   emailcontroller.text.toString(),
-                            //   phonecontroller.text.toString(),
-                            //   passwordcontroller.text.toString(),
-                            // );
                           },
                           child: Obx(
                             () => controller.loader.isTrue
