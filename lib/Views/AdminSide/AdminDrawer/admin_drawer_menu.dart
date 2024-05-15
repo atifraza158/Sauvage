@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
+import '../../../Controllers/database_services.dart';
 import '../../../Controllers/firebase_services.dart';
 import '../../AuthScreens/login_screen.dart';
 import '../../Utils/Styles/text_styles.dart';
@@ -20,6 +22,7 @@ class AdminDrawerMenu extends StatefulWidget {
 
 class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
   User? currentUser;
+  DatabaseServices controller = Get.put(DatabaseServices());
 
   checkUser() {
     FirebaseAuth.instance.authStateChanges().listen((user) {
@@ -196,8 +199,7 @@ class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
                   )
                 : GestureDetector(
                     onTap: () {
-                      Fluttertoast.showToast(msg: 'Logout Successfully');
-                      FirebaseServices().logout(context);
+                      controller.logOut();
                     },
                     child: Row(
                       children: [

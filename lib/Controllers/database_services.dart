@@ -3,6 +3,7 @@ import 'package:dine_in/Views/AdminSide/AdminDrawer/admin_drawer_screen.dart';
 import 'package:dine_in/Views/AuthScreens/auth_check.dart';
 import 'package:dine_in/Views/UserSide/DrawerScreens/user_drawer_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import '../Views/AuthScreens/login_screen.dart';
@@ -76,5 +77,12 @@ class DatabaseServices extends GetxController {
       print('Error: $e');
       loader(false);
     }
+  }
+
+  logOut() async {
+    await FirebaseAuth.instance.signOut().then((value) {
+      Fluttertoast.showToast(msg: 'Logout Successfully');
+      Get.offAll(() => LoginScreen());
+    });
   }
 }

@@ -1,4 +1,4 @@
-import 'package:dine_in/Controllers/firebase_services.dart';
+import 'package:dine_in/Controllers/database_services.dart';
 import 'package:dine_in/Views/AuthScreens/login_screen.dart';
 import 'package:dine_in/Views/UserSide/CategoringScreens/catering_rates.dart';
 import 'package:dine_in/Views/UserSide/DineInScreens/all_dine_in.dart';
@@ -20,7 +20,7 @@ class UserDrawerMenu extends StatefulWidget {
 
 class _UserDrawerMenuState extends State<UserDrawerMenu> {
   User? currentUser;
-
+  DatabaseServices controller = Get.put(DatabaseServices());
   checkUser() {
     FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() {
@@ -250,8 +250,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                   )
                 : GestureDetector(
                     onTap: () {
-                      FirebaseServices().logout(context);
-                      Get.snackbar('Success', 'Logout Successfully');
+                      controller.logOut();
                     },
                     child: Row(
                       children: [
