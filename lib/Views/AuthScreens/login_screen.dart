@@ -1,4 +1,4 @@
-import 'package:dine_in/Controllers/firebase_services.dart';
+import 'package:dine_in/Controllers/database_services.dart';
 import 'package:dine_in/Views/AuthScreens/forget_password.dart';
 import 'package:dine_in/Views/AuthScreens/register_screen.dart';
 import 'package:dine_in/Views/Utils/Components/login_button.dart';
@@ -7,6 +7,7 @@ import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import '../UserSide/DrawerScreens/user_drawer_screen.dart';
 import '../Utils/Components/common_field.dart';
 
@@ -25,6 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
   bool show = false;
   bool loader = false;
+
+  DatabaseServices controller = Get.put(DatabaseServices());
 
   void showPassword() {
     if (show) {
@@ -109,7 +112,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: "johndoe@example.com",
                     controller: emailcontroller,
                     validate: (val) {
-                      if (val!.isEmpty) {}
+                      if (val!.isEmpty) {
+                        return 'Email can\'t empty';
+                      } else {
+                        return null;
+                      }
                     },
                     obsecureText: false,
                   ),
@@ -174,26 +181,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       vertical: 20,
                     ),
                     child: CommonButton(
-                      child: FirebaseServices().loader
-                          ? CircularProgressIndicator(
-                              color: AppTheme.whiteColor,
-                            )
-                          : Text(
-                              'Login',
-                              style: CustomTextStyles.commonButtonStyle,
-                            ),
+                      child: Obx(
+                        () => controller.loader.isTrue
+                            ? CircularProgressIndicator(
+                                color: AppTheme.whiteColor,
+                              )
+                            : Text(
+                                'Login',
+                                style: CustomTextStyles.commonButtonStyle,
+                              ),
+                      ),
                       onPressed: () {
                         if (_formkey.currentState!.validate()) {
-                          setState(() {
-                            FirebaseServices().login(
-                              context,
-                              emailcontroller.text.toString(),
-                              passwordcontroller.text.toString(),
-                            );
-                          });
-                        } else {
-                          Fluttertoast.showToast(msg: 'Invalid Credentials');
-                        }
+                          controller.signInWithEmailAndPassword(
+                            emailcontroller.text,
+                            passwordcontroller.text,
+                          );
+                        } else {}
                       },
                     ),
                   ),

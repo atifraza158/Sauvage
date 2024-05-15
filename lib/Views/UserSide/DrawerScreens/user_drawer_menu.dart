@@ -8,8 +8,8 @@ import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
 class UserDrawerMenu extends StatefulWidget {
   const UserDrawerMenu({super.key});
@@ -65,7 +65,9 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                             style: CustomTextStyles.drawerElementsStyle,
                           ),
                           Text(
-                            "${currentUser!.email}",
+                            currentUser != null
+                                ? "${currentUser!.email}"
+                                : 'example@gmail.com',
                             style: CustomTextStyles.drawerElementsStyle,
                           ),
                         ],
@@ -248,8 +250,8 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                   )
                 : GestureDetector(
                     onTap: () {
-                      Fluttertoast.showToast(msg: 'Logout Successfully');
                       FirebaseServices().logout(context);
+                      Get.snackbar('Success', 'Logout Successfully');
                     },
                     child: Row(
                       children: [

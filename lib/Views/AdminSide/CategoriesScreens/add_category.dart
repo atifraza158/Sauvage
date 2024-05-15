@@ -64,7 +64,7 @@ class _AddCategoryAdminState extends State<AddCategoryAdmin> {
                       if (value!.isEmpty) {
                         return 'Title is required';
                       } else {
-                        // return '';
+                        return null;
                       }
                     },
                     hintText: 'Title of Catgory (i,e. Pizza)',

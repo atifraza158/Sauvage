@@ -1,13 +1,10 @@
 import 'package:dine_in/Controllers/database_services.dart';
-import 'package:dine_in/Views/AuthScreens/login_screen.dart';
 import 'package:dine_in/Views/Utils/Components/common_field.dart';
 import 'package:dine_in/Views/Utils/Components/login_button.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:random_string/random_string.dart';
-
 import '../Utils/Styles/theme.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -37,6 +34,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } else {
       return null;
     }
+  }
+
+  bool showP = false;
+  bool showCP = false;
+  void showPassword() {
+    if (showP) {
+      showP = false;
+    } else {
+      showP = true;
+    }
+
+    setState(() {});
+  }
+
+  void showCPassword() {
+    if (showCP) {
+      showCP = false;
+    } else {
+      showCP = true;
+    }
+
+    setState(() {});
   }
 
   @override
@@ -126,31 +145,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(
                         height: 20,
                       ),
-                      // const Text(
-                      //   'phone no',
-                      //   style: CustomTextStyles.smallBlackColorStyle,
-                      // ),
-                      // const SizedBox(
-                      //   height: 5,
-                      // ),
-                      // SizedBox(
-                      //   height: 75,
-                      //   child: IntlPhoneField(
-                      //     controller: phonecontroller,
-                      //     keyboardType: TextInputType.number,
-                      //     decoration: InputDecoration(
-                      //       hintText: '000 000 0000',
-                      //       border: OutlineInputBorder(
-                      //           borderRadius: BorderRadius.circular(8)),
-                      //     ),
-                      //     validator: (value) {
-                      //       if (value!.isValidNumber()) {
-                      //         return 'Phone Number';
-                      //       }
-                      //       return null;
-                      //     },
-                      //   ),
-                      // ),
                       const Text(
                         'Password',
                         style: CustomTextStyles.smallBlackColorStyle,
@@ -168,7 +162,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           }
                         },
-                        obsecureText: true,
+                        icon: IconButton(
+                          icon: showP
+                              ? const Icon(Icons.visibility_off)
+                              : const Icon(Icons.visibility),
+                          onPressed: showPassword,
+                        ),
+                        obsecureText: showP ? false : true,
                         hintText: 'Type pasword here',
                       ),
                       const SizedBox(
@@ -186,10 +186,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       CommonTextField(
                         controller: cpasswordcontroller,
-                        obsecureText: true,
                         hintText: "Confirm Password",
                         ketboardType: TextInputType.text,
                         validate: matchPassword,
+                        icon: IconButton(
+                          icon: showCP
+                              ? const Icon(Icons.visibility_off)
+                              : const Icon(Icons.visibility),
+                          onPressed: showCPassword,
+                        ),
+                        obsecureText: showCP ? false : true,
                       ),
                       const SizedBox(
                         height: 40,
@@ -198,28 +204,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: CommonButton(
                           onPressed: () async {
                             if (_formkey.currentState!.validate()) {
-                              String id = randomAlphaNumeric(7);
-                              Map<String, dynamic> userData = {
-                                'name': namecontroller.text.toString(),
-                                'role': 'user',
-                                'email': emailcontroller.text.toString(),
-                                'password': passwordcontroller.text.toString(),
-                              };
-                              bool doesExist = await controller
-                                  .doesEmailExist(emailcontroller.text);
-                              print(doesExist);
-
-                              if (!doesExist) {
-                                Get.snackbar('Error', "Email is Already Exist");
-                              } else {
-                                controller
-                                    .addData(userData, id, 'user')
-                                    .whenComplete(() {
-                                  Get.snackbar(
-                                      "Success", 'User Created Successfully');
-                                  Get.offAll(() => LoginScreen());
-                                });
-                              }
+                              controller.createUserWithEmailAndPassword(
+                                emailcontroller.text,
+                                passwordcontroller.text,
+                                namecontroller.text,
+                                
+                              );
                             }
                           },
                           child: Obx(

@@ -1,6 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:dine_in/Views/AdminSide/AdminDrawer/admin_drawer_screen.dart';
+import 'package:dine_in/Views/AuthScreens/auth_check.dart';
+import 'package:dine_in/Views/UserSide/DrawerScreens/user_drawer_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+
+import '../Views/AuthScreens/login_screen.dart';
 
 class DatabaseServices extends GetxController {
   RxBool loader = false.obs;
@@ -25,17 +30,51 @@ class DatabaseServices extends GetxController {
     return FirebaseFirestore.instance.collection(collectName).snapshots();
   }
 
-  Future<bool> doesEmailExist(String email) async {
-    final firestore = FirebaseFirestore.instance;
+  Future<void> signInWithEmailAndPassword(String email, String password) async {
+    try {
+      loader(true);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      User? user = userCredential.user;
+      loader(false);
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+      final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+          await firestore.collection('auth').doc(user!.uid).get();
+      final String role = documentSnapshot['role'];
+      // Navigate based on the user's role
+      if (documentSnapshot['role'] == 'admin') {
+        Get.offAll(() => AdminDrawerScreen());
+      } else if (role == 'user') {
+        Get.offAll(() => UserDrawerScreen());
+      }
+      Get.offAll(() => AuthCheck());
+      print(user);
+    } catch (e) {
+      loader(false);
+      Get.snackbar('Error', 'User Not Found');
+      print('Error: $e');
+    }
+  }
 
-    // Create a query to check for documents where 'email' field matches
-    final query = await firestore
-        .collection('users')
-        .where('email', isEqualTo: email)
-        .limit(1)
-        .get();
-
-    // Check if any documents were found
-    return query.docs.isNotEmpty;
+  Future<void> createUserWithEmailAndPassword(
+      String email, String password, String name) async {
+    try {
+      loader(true);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      User? user = userCredential.user;
+      await FirebaseFirestore.instance.collection('auth').doc(user!.uid).set({
+        'email': email,
+        'name': name,
+        'role': 'user',
+      }).then((value) {
+        loader(false);
+        Get.snackbar('Success', "User Created Successfully");
+        Get.offAll(() => LoginScreen());
+      });
+    } catch (e) {
+      print('Error: $e');
+      loader(false);
+    }
   }
 }
