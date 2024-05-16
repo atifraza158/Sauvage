@@ -4,12 +4,10 @@ import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../../Controllers/database_services.dart';
-import '../../../Controllers/firebase_services.dart';
 import '../../AuthScreens/login_screen.dart';
 import '../../Utils/Styles/text_styles.dart';
 

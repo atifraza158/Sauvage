@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dine_in/Controllers/database_services.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class UserProfile extends StatefulWidget {
   const UserProfile({super.key});
@@ -10,6 +14,36 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
+  DatabaseServices controller = Get.put(DatabaseServices());
+  User? currentUser;
+  String? userName;
+  checkUser() {
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      setState(() {
+        currentUser = user;
+        if (currentUser != null) {
+          FirebaseFirestore.instance
+              .collection('auth')
+              .doc(currentUser!.uid)
+              .get()
+              .then((DocumentSnapshot documentSnapshot) {
+            if (documentSnapshot.exists) {
+              setState(() {
+                userName = documentSnapshot['name'];
+              });
+            }
+          });
+        }
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    checkUser();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +53,6 @@ class _UserProfileState extends State<UserProfile> {
           "My Account",
           style: CustomTextStyles.appBarWhiteStyle,
         ),
-        
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -36,20 +69,24 @@ class _UserProfileState extends State<UserProfile> {
                   children: [
                     CircleAvatar(
                       radius: 45,
-                      backgroundImage: AssetImage('assets/images/user.jpg'),
+                      child: Icon(
+                        Icons.person,
+                        size: 40,
+                        color: AppTheme.themeColor,
+                      ),
                     ),
-
                     SizedBox(width: 10),
-                    // Column for name and email
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Johan Doe",
+                          "${userName}",
                           style: CustomTextStyles.mediumBlackColorStyle2,
                         ),
                         Text(
-                          "johndoe@example.com",
+                          currentUser != null
+                              ? "${currentUser!.email}"
+                              : 'example@gmail.com',
                           style: CustomTextStyles.smallGreyColorStyle,
                         ),
                       ],
@@ -70,120 +107,40 @@ class _UserProfileState extends State<UserProfile> {
                 },
               ),
             ),
+            GestureDetector(
+              onTap: () {
+                controller.logOut();
+              },
+              child: tile('Logout', Icons.logout),
+            )
           ],
         ),
       ),
-
-      // body: Padding(
-      //   padding: const EdgeInsets.all(30),
-      //   child: Center(
-      //     child: Column(
-      //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      //       crossAxisAlignment: CrossAxisAlignment.center,
-      //       children: [
-      //         Expanded(
-      //           child: ClipRRect(
-      //             borderRadius: BorderRadius.circular(14),
-      //             child: Image.asset(
-      //               'assets/images/user.jpg',
-      //               fit: BoxFit.cover,
-      //               width: MediaQuery.sizeOf(context).width,
-      //             ),
-      //           ),
-      //         ),
-      //         SizedBox(height: 20),
-
-      //         // information of User
-      //         Column(
-      //           children: [
-      //             Row(
-      //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //               children: [
-      //                 Text(
-      //                   "Username",
-      //                   style: CustomTextStyles.smallGreyColorStyle,
-      //                 ),
-      //                 Text(
-      //                   'jamshed123',
-      //                   style: CustomTextStyles.mediumBlackColorStyle2,
-      //                 )
-      //               ],
-      //             ),
-      //             SizedBox(height: 10),
-      //             Padding(
-      //               padding: const EdgeInsets.symmetric(horizontal: 20),
-      //               child: Divider(),
-      //             ),
-      //             SizedBox(height: 10),
-      //             Row(
-      //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //               children: [
-      //                 Text(
-      //                   "Email Address",
-      //                   style: CustomTextStyles.smallGreyColorStyle,
-      //                 ),
-      //                 Flexible(
-      //                   child: Text(
-      //                     'W.jamshedmalik@gmail.com',
-      //                     style: CustomTextStyles.mediumBlackColorStyle2,
-      //                   ),
-      //                 )
-      //               ],
-      //             ),
-      //             SizedBox(height: 10),
-      //             Padding(
-      //               padding: const EdgeInsets.symmetric(horizontal: 20),
-      //               child: Divider(),
-      //             ),
-      //             SizedBox(height: 10),
-      //             Row(
-      //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //               children: [
-      //                 Text(
-      //                   "Contact No.",
-      //                   style: CustomTextStyles.smallGreyColorStyle,
-      //                 ),
-      //                 Text(
-      //                   '+1234567890',
-      //                   style: CustomTextStyles.mediumBlackColorStyle2,
-      //                 )
-      //               ],
-      //             ),
-      //             SizedBox(height: 10),
-      //           ],
-      //         ),
-      //       ],
-      //     ),
-      //   ),
-      // ),
     );
   }
 
-  tile(String text, IconData icon) {
-    return GestureDetector(
-      onTap: () {},
-      child: ListTile(
-        leading: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppTheme.themeColor,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              icon,
-              color: AppTheme.whiteColor,
-            ),
+  Widget tile(String text, IconData icon) {
+    return ListTile(
+      leading: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppTheme.themeColor,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(
+            icon,
+            color: AppTheme.whiteColor,
           ),
         ),
-        title: Text(
-          text.toString(),
-          style: CustomTextStyles.mediumBlackColorStyle2,
-        ),
-        trailing: Icon(
-          Icons.arrow_forward_ios_rounded,
-          size: 20,
-        ),
+      ),
+      title: Text(
+        text.toString(),
+        style: CustomTextStyles.mediumBlackColorStyle2,
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios_rounded,
+        size: 20,
       ),
     );
   }
@@ -194,7 +151,7 @@ class _UserProfileState extends State<UserProfile> {
     Icons.question_answer,
     Icons.contact_phone,
     Icons.edit_document,
-    Icons.logout,
+    // Icons.logout,
   ];
 
   List titles = [
@@ -203,6 +160,6 @@ class _UserProfileState extends State<UserProfile> {
     'FAQ\'s',
     'Contact Us',
     'Terms & Conditions',
-    'Logout'
+    // 'Logout'
   ];
 }

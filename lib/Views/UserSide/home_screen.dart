@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Views/UserSide/DineInScreens/all_dine_in.dart';
 import 'package:dine_in/Views/UserSide/DineInScreens/dine_in_detail.dart';
 import 'package:dine_in/Views/UserSide/cart_screen.dart';
@@ -8,6 +9,8 @@ import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:dine_in/Views/static_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
+
+import '../../Controllers/database_services.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -81,6 +84,18 @@ class _HomeScreenState extends State<HomeScreen> {
     'A well-loved appetizer featuring ten slices of onions, coated in a crispy batter and deep-fried.',
     'Indulge in the irresistible crunch of our Crispy Chicken Fillet, featuring golden-brown perfection on the outside and tender, flavorful chicken on the inside.',
   ];
+
+  Stream? itemsStream;
+  getItems() async {
+    itemsStream = await DatabaseServices().getData('items');
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getItems();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +193,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Container(
                               width: currentIndex == entry.key ? 15 : 7,
                               height: 7.0,
-                              margin: const EdgeInsets.symmetric(horizontal: 2.0),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 2.0),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: currentIndex == entry.key
@@ -224,6 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   // SizedBox(height: 2),
+                  // getItemsWdget(),
                   dineInWidget(),
                   Text(
                     "Categories",
@@ -232,14 +249,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(
-                            left: 2, top: 8, bottom: 10),
+                        padding:
+                            const EdgeInsets.only(left: 2, top: 8, bottom: 10),
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
-                              _bulidProductCategory(
-                                  index: 0, name: 'Starters'),
+                              _bulidProductCategory(index: 0, name: 'Starters'),
                               _bulidProductCategory(
                                 index: 1,
                                 name: 'Chicken Karahi',
@@ -259,8 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               _bulidProductCategory(index: 8, name: 'Bread'),
                               _bulidProductCategory(index: 9, name: 'Drinks'),
                               _bulidProductCategory(index: 10, name: 'Rice'),
-                              _bulidProductCategory(
-                                  index: 11, name: 'Dessert'),
+                              _bulidProductCategory(index: 11, name: 'Dessert'),
                               _bulidProductCategory(index: 12, name: 'Salad'),
                             ],
                           ),
@@ -365,6 +380,82 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget getItemsWdget() {
+    return StreamBuilder(
+      stream: itemsStream,
+      builder: (context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          return SizedBox(
+            width: MediaQuery.sizeOf(context).width,
+            height: 180,
+            child: ListView.builder(
+              itemCount: snapshot.data.docs.length,
+              itemBuilder: (context, index) {
+                DocumentSnapshot ds = snapshot.data.docs[index];
+                return Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppTheme.skyBlueThemeColor,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.skyBlueThemeColor,
+                          offset: const Offset(
+                            2.0,
+                            1.0,
+                          ),
+                          blurRadius: 6.0,
+                          spreadRadius: 1.0,
+                        ),
+                        BoxShadow(
+                          color: Colors.white,
+                          offset: const Offset(0.0, 0.0),
+                          blurRadius: 0.0,
+                          spreadRadius: 0.0,
+                        ),
+                      ],
+                    ),
+                    child: Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${ds['title']}',
+                            style: CustomTextStyles.commonButtonStyle,
+                          ),
+                          Text(
+                            '\$ 15.99',
+                            style: CustomTextStyles.drawerElementsStyle,
+                          ),
+                          Expanded(
+                              child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.asset(
+                                  ds['image'],
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ],
+                          ))
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 
