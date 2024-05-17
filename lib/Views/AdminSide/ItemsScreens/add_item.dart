@@ -1,14 +1,13 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dine_in/Views/AdminSide/ItensScreens/all_items_admin.dart';
+import 'package:dine_in/Views/AdminSide/ItemsScreens/all_items_admin.dart';
 import 'package:dine_in/Views/Utils/Components/common_field.dart';
 import 'package:dine_in/Views/Utils/Components/login_button.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,6 +28,7 @@ class _AddItemState extends State<AddItem> {
   TextEditingController titleController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  DatabaseServices controller = Get.put(DatabaseServices());
 
   final key = GlobalKey<FormState>();
   File? image;
@@ -118,33 +118,41 @@ class _AddItemState extends State<AddItem> {
 
                   StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
-                        .collection('category')
+                        .collection('categories')
                         .snapshots(),
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      List<DropdownMenuItem> categoriesNames = [];
+                    builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        final categories = snapshot.data.docs.reversed.toList();
-                        for (var i = 0; i < categories; i++) {
-                          categoriesNames.add(DropdownMenuItem(
-                            child: Text(
-                              categories['name'],
+                        List<DropdownMenuItem> categoriesNames = [];
+                        snapshot.data!.docs.forEach((category) {
+                          categoriesNames.add(
+                            DropdownMenuItem(
+                              child: Text(category['title']),
+                              value: category['id'],
                             ),
-                            value: categories.name.toString(),
-                          ));
-                        }
-                      } else {
-                        const Center(
-                          child: CircularProgressIndicator(
-                            color: AppTheme.themeColor,
-                          ),
+                          );
+                        });
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Select a Category",
+                              style: CustomTextStyles.smallGreyColorStyle,
+                            ),
+                            DropdownButton(
+                              style: CustomTextStyles.smallBlackColorStyle,
+                              items: categoriesNames,
+                              value: selectedValue,
+                              onChanged: (categoryValue) {
+                                setState(() {
+                                  selectedValue = categoryValue;
+                                });
+                              },
+                            ),
+                          ],
                         );
+                      } else {
+                        return Center(child: CircularProgressIndicator());
                       }
-                      return DropdownButton(
-                        items: categoriesNames,
-                        onChanged: (categoryValue) {
-                          print(categoryValue);
-                        },
-                      );
                     },
                   ),
 
@@ -198,15 +206,23 @@ class _AddItemState extends State<AddItem> {
                             .then((value) => {
                                   Fluttertoast.showToast(
                                       msg: 'Item Added Successfully'),
-                                  Get.offAll(AllItemsAdmin()),
+                                  Get.off(() => AllItemsAdmin()),
                                 });
                       }
                     },
-                    child: const Text(
-                      "Add Item",
-                      style: CustomTextStyles.commonButtonStyle,
+                    child: Obx(
+                      () => controller.loader.isTrue
+                          ? Center(
+                              child: CircularProgressIndicator(
+                                color: AppTheme.whiteColor,
+                              ),
+                            )
+                          : Text(
+                              "Add Item",
+                              style: CustomTextStyles.commonButtonStyle,
+                            ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

@@ -1,5 +1,5 @@
 import 'package:dine_in/Views/AdminSide/DealsScreens/all_deals_admin.dart';
-import 'package:dine_in/Views/AdminSide/ItensScreens/all_items_admin.dart';
+import 'package:dine_in/Views/AdminSide/ItemsScreens/all_items_admin.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

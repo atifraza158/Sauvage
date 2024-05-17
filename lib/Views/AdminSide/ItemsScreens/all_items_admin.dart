@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dine_in/Views/AdminSide/ItensScreens/add_item.dart';
+import 'package:dine_in/Views/AdminSide/ItemsScreens/add_item.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:flutter/material.dart';
 
@@ -82,13 +82,13 @@ class _AllItemsAdminState extends State<AllItemsAdmin> {
                         ),
                         blurRadius: 6.0,
                         spreadRadius: 1.0,
-                      ), //BoxShadow
+                      ),
                       BoxShadow(
                         color: Colors.white,
                         offset: const Offset(0.0, 0.0),
                         blurRadius: 0.0,
                         spreadRadius: 0.0,
-                      ), //BoxShadow
+                      ),
                     ],
                   ),
                   child: Column(
@@ -106,9 +106,11 @@ class _AllItemsAdminState extends State<AllItemsAdmin> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              ds['title'],
-                              style: CustomTextStyles.mediumBlackColorStyle2,
+                            Expanded(
+                              child: Text(
+                                ds['title'],
+                                style: CustomTextStyles.mediumBlackColorStyle2,
+                              ),
                             ),
                             Text("\$" + ds['price']),
                           ],

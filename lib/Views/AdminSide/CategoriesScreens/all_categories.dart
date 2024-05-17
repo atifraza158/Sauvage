@@ -45,15 +45,22 @@ class _AllCategoriesAdminScreenState extends State<AllCategoriesAdminScreen> {
                 DocumentSnapshot ds = snapshot.data.docs[index];
                 return Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Card(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppTheme.themeColor.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: ListTile(
                         leading: CircleAvatar(
                           radius: 40,
                           backgroundImage: NetworkImage(ds['image']),
                         ),
-                        title: Text(ds['title'].toString()),
+                        title: Text(
+                          ds['title'].toString(),
+                          style: CustomTextStyles.smallBlackColorStyle,
+                        ),
                       ),
                     ),
                   ),

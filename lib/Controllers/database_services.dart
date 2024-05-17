@@ -12,8 +12,8 @@ class DatabaseServices extends GetxController {
   RxBool loader = false.obs;
   Future addData(
       Map<String, dynamic> data, String id, String collectionName) async {
-    loader(true);
     try {
+      loader(true);
       return await FirebaseFirestore.instance
           .collection(collectionName)
           .doc(id)
@@ -22,14 +22,16 @@ class DatabaseServices extends GetxController {
             (value) => loader(false),
           );
     } catch (e) {
-      print(e.toString());
       loader(false);
+      print(e.toString());
     }
   }
 
   Future<Stream<QuerySnapshot>> getData(String collectName) async {
     return FirebaseFirestore.instance.collection(collectName).snapshots();
   }
+
+  // Here are the Auth Services below
 
   Future<void> signInWithEmailAndPassword(String email, String password) async {
     try {

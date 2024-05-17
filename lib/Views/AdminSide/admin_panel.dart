@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Views/AdminSide/CategoriesScreens/all_categories.dart';
 import 'package:dine_in/Views/AdminSide/DealsScreens/all_deals_admin.dart';
-import 'package:dine_in/Views/AdminSide/ItensScreens/all_items_admin.dart';
+import 'package:dine_in/Views/AdminSide/ItemsScreens/all_items_admin.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
+import 'package:get/get.dart';
 
 import '../../Controllers/database_services.dart';
 
@@ -115,11 +116,7 @@ class _AdminPanelState extends State<AdminPanel> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return AllDealsAdminScreen();
-                        },
-                      ));
+                      Get.to(AllDealsAdminScreen());
                     },
                     child: Text(
                       'View all',
@@ -151,14 +148,50 @@ class _AdminPanelState extends State<AdminPanel> {
                 return Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.skyBlueThemeColor,
+                          offset: const Offset(
+                            2.0,
+                            1.0,
+                          ),
+                          blurRadius: 6.0,
+                          spreadRadius: 1.0,
+                        ),
+                        BoxShadow(
+                          color: Colors.white,
+                          offset: const Offset(0.0, 0.0),
+                          blurRadius: 0.0,
+                          spreadRadius: 0.0,
+                        ),
+                      ],
+                    ),
                     child: Column(
                       children: [
                         Expanded(
-                            child: Image.network(
-                          ds['image'],
-                          fit: BoxFit.cover,
+                            child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            ds['image'],
+                            fit: BoxFit.cover,
+                          ),
                         )),
-                        Text(ds['title'].toString())
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              ds['title'].toString(),
+                              style: CustomTextStyles.smallGreyColorStyle,
+                              textAlign: TextAlign.left,
+                            ),
+                            Text(
+                              '\$${ds['price']}',
+                              style: CustomTextStyles.smallBlackColorStyle,
+                            ),
+                          ],
+                        )
                       ],
                     ),
                   ),
@@ -192,15 +225,51 @@ class _AdminPanelState extends State<AdminPanel> {
                 return Padding(
                   padding: const EdgeInsets.all(3.0),
                   child: Container(
-                    child: Column(
-                      children: [
-                        Expanded(
-                            child: Image.network(
-                          ds['image'],
-                          fit: BoxFit.cover,
-                        )),
-                        Text(ds['title'].toString())
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.skyBlueThemeColor,
+                          offset: const Offset(
+                            2.0,
+                            1.0,
+                          ),
+                          blurRadius: 6.0,
+                          spreadRadius: 1.0,
+                        ),
+                        BoxShadow(
+                          color: Colors.white,
+                          offset: const Offset(0.0, 0.0),
+                          blurRadius: 0.0,
+                          spreadRadius: 0.0,
+                        ),
                       ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Expanded(
+                              child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              ds['image'],
+                              fit: BoxFit.cover,
+                            ),
+                          )),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                ds['title'].toString(),
+                                style: CustomTextStyles.smallGreyColorStyle,
+                                textAlign: TextAlign.left,
+                              ),
+                              Text(''),
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 );

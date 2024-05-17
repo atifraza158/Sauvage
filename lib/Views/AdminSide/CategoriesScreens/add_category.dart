@@ -72,16 +72,18 @@ class _AddCategoryAdminState extends State<AddCategoryAdmin> {
                   ),
                   SizedBox(height: 50),
                   CommonButton(
-                    child: DatabaseServices().loader.isTrue
-                        ? Center(
-                            child: CircularProgressIndicator(
-                              color: AppTheme.whiteColor,
+                    child: Obx(
+                      () => DatabaseServices().loader.isTrue
+                          ? Center(
+                              child: CircularProgressIndicator(
+                                color: AppTheme.whiteColor,
+                              ),
+                            )
+                          : Text(
+                              'Add Category',
+                              style: CustomTextStyles.commonButtonStyle,
                             ),
-                          )
-                        : Text(
-                            'Add Category',
-                            style: CustomTextStyles.commonButtonStyle,
-                          ),
+                    ),
                     onPressed: () async {
                       if (key.currentState!.validate()) {
                         // Create unique file name with time stamp
@@ -119,7 +121,9 @@ class _AddCategoryAdminState extends State<AddCategoryAdmin> {
                             .then((value) => {
                                   Fluttertoast.showToast(
                                       msg: 'Category Added Successfully'),
-                                  Get.offAll(AllCategoriesAdminScreen()),
+                                  Get.off(
+                                    () => AllCategoriesAdminScreen(),
+                                  ),
                                 });
                       }
                     },
