@@ -17,14 +17,14 @@ class AllDealsAdminScreen extends StatefulWidget {
 
 class _AllDealsAdminScreenState extends State<AllDealsAdminScreen> {
   Stream? dealsStream;
-  getItems() async {
+  getDeals() async {
     dealsStream = await DatabaseServices().getData('deals');
     setState(() {});
   }
 
   @override
   void initState() {
-    getItems();
+    getDeals();
     super.initState();
   }
 
@@ -44,11 +44,7 @@ class _AllDealsAdminScreenState extends State<AllDealsAdminScreen> {
           borderRadius: BorderRadius.circular(100),
         ),
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(
-            builder: (context) {
-              return AddDeal();
-            },
-          ));
+          Get.to(() => AddDeal());
         },
         child: Icon(
           Icons.add,

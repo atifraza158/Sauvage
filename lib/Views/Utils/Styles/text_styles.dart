@@ -72,10 +72,17 @@ extension CustomTextStyles on TextStyle {
     color: Colors.black,
   );
 
-    static const TextStyle mediumThemeColorColorStyle = TextStyle(
+  static const TextStyle mediumThemeColorColorStyle = TextStyle(
     fontWeight: FontWeight.bold,
     fontFamily: 'poppins',
     fontSize: 16,
+    color: AppTheme.themeColor,
+  );
+
+  static const TextStyle largeThemeColorColorStyle = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontFamily: 'poppins',
+    fontSize: 28,
     color: AppTheme.themeColor,
   );
 

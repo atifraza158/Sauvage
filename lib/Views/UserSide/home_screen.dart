@@ -1,14 +1,17 @@
+import 'dart:async';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Views/UserSide/DineInScreens/all_dine_in.dart';
 import 'package:dine_in/Views/UserSide/DineInScreens/dine_in_detail.dart';
+import 'package:dine_in/Views/UserSide/all_deals_user.dart';
 import 'package:dine_in/Views/UserSide/cart_screen.dart';
-import 'package:dine_in/Views/UserSide/take_out.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:dine_in/Views/static_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
+import 'package:get/get.dart';
 
 import '../../Controllers/database_services.dart';
 
@@ -85,16 +88,51 @@ class _HomeScreenState extends State<HomeScreen> {
     'Indulge in the irresistible crunch of our Crispy Chicken Fillet, featuring golden-brown perfection on the outside and tender, flavorful chicken on the inside.',
   ];
 
+  final PageController _pageController = PageController();
+  int currentPage = 0;
+  int totalPages = 0;
+  Timer? timer;
+
   Stream? itemsStream;
   getItems() async {
     itemsStream = await DatabaseServices().getData('items');
     setState(() {});
   }
 
+  Stream? dealsStream;
+  getDeals() async {
+    dealsStream = await DatabaseServices().getData('deals');
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     getItems();
+    startTimer();
+    getDeals();
     super.initState();
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(Duration(seconds: 3), (timer) {
+      if (currentPage < totalPages) {
+        _pageController.animateToPage(
+          currentPage++,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      } else {
+        currentPage = 0;
+        _pageController.jumpToPage(currentPage);
+      }
+    });
   }
 
   @override
@@ -134,79 +172,94 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: Text(
-                "Deals",
-                style: CustomTextStyles.heading1,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Stack(children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return AllTakeOuts();
-                        },
-                      ));
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Deals",
+                    style: CustomTextStyles.heading1,
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Get.to(() => AllDealsUser());
                     },
-                    child: CarouselSlider(
-                      items: imageList
-                          .map(
-                            (image) => Stack(
-                              children: [
-                                Image.asset(
-                                  '${image['image_path']}',
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                ),
-                              ],
-                            ),
-                          )
-                          .toList(),
-                      carouselController: carouselController,
-                      options: CarouselOptions(
-                        autoPlay: true,
-                        aspectRatio: 19 / 7,
-                        viewportFraction: 1,
-                        autoPlayInterval: const Duration(seconds: 5),
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            currentIndex = index;
-                          });
-                        },
-                      ),
+                    child: Text(
+                      'View All',
+                      style: CustomTextStyles.smallThemedColorStyle,
                     ),
                   ),
-                  Positioned(
-                    bottom: 10,
-                    left: 0,
-                    right: 0,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: imageList.asMap().entries.map((entry) {
-                          return GestureDetector(
-                            onTap: () =>
-                                carouselController.animateToPage(entry.key),
-                            child: Container(
-                              width: currentIndex == entry.key ? 15 : 7,
-                              height: 7.0,
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 2.0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: currentIndex == entry.key
-                                    ? AppTheme.themeColor
-                                    : Colors.white,
+                ],
+              ),
+            ),
+            StreamBuilder(
+              stream: dealsStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  totalPages = snapshot.data.docs.length;
+                  return SizedBox(
+                    height: 150,
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: snapshot.data.docs.length,
+                      itemBuilder: (context, index) {
+                        DocumentSnapshot ds = snapshot.data.docs[index];
+                        return Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(),
+                              width: MediaQuery.sizeOf(context).width,
+                              child: Image.network(
+                                ds['image'],
+                                fit: BoxFit.cover,
                               ),
                             ),
-                          );
-                        }).toList()),
-                  ),
-                ]),
-              ),
+                            Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: 150,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.topRight,
+                                  colors: [
+                                    AppTheme.blackColor.withOpacity(0.5),
+                                    AppTheme.whiteColor.withOpacity(0.5),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20.0,
+                                vertical: 10,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    ds['title'],
+                                    style: CustomTextStyles.appBarWhiteStyle,
+                                  ),
+                                  Text(
+                                    '\$${ds['price']}',
+                                    style:
+                                        CustomTextStyles.mediumWhiteColorStyle,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                } else {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.themeColor,
+                    ),
+                  );
+                }
+              },
             ),
             SizedBox(height: 5),
             Padding(
@@ -711,7 +764,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget getAllItemsWidget() {
     return SizedBox(
-      height: 200,
+      height: 170,
       child: StreamBuilder(
         stream: itemsStream,
         builder: (context, snapshot) {

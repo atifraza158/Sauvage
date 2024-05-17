@@ -3,7 +3,7 @@ import 'package:dine_in/Controllers/database_services.dart';
 import 'package:dine_in/Views/AuthScreens/login_screen.dart';
 import 'package:dine_in/Views/UserSide/ItemsScreens/all_items_user.dart';
 import 'package:dine_in/Views/UserSide/DineInScreens/all_dine_in.dart';
-import 'package:dine_in/Views/UserSide/take_out.dart';
+import 'package:dine_in/Views/UserSide/all_deals_user.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -57,7 +57,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: NetworkImage(''),
+                  child: Icon(Icons.person),
                 ),
                 SizedBox(width: 10),
                 Expanded(
@@ -195,11 +195,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return AllTakeOuts();
-                      },
-                    ));
+                    Get.to(() => AllDealsUser());
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 15),
