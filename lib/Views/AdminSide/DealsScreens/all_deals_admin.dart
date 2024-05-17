@@ -73,7 +73,7 @@ class _AllDealsAdminScreenState extends State<AllDealsAdminScreen> {
                 padding: const EdgeInsets.all(10.0),
                 child: GestureDetector(
                   onTap: () {
-                    Get.to(DealsDetailAdmin(id: ds.id));
+                    Get.to(() => DealsDetailAdmin(id: ds.id));
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -115,7 +115,8 @@ class _AllDealsAdminScreenState extends State<AllDealsAdminScreen> {
                               Expanded(
                                 child: Text(
                                   ds['title'],
-                                  style: CustomTextStyles.mediumBlackColorStyle2,
+                                  style:
+                                      CustomTextStyles.mediumBlackColorStyle2,
                                 ),
                               ),
                               Text("\$" + ds['price']),

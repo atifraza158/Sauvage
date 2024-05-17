@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Views/AdminSide/CategoriesScreens/all_categories.dart';
 import 'package:dine_in/Views/AdminSide/DealsScreens/all_deals_admin.dart';
+import 'package:dine_in/Views/AdminSide/DealsScreens/deal_detail_admin.dart';
 import 'package:dine_in/Views/AdminSide/ItemsScreens/all_items_admin.dart';
+import 'package:dine_in/Views/AdminSide/ItemsScreens/item_detail_admin.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,7 @@ class AdminPanel extends StatefulWidget {
 class _AdminPanelState extends State<AdminPanel> {
   Stream? categoryStream;
   Stream? itemsStream;
+  Stream? dealsStream;
   getCategories() async {
     categoryStream = await DatabaseServices().getData('categories');
     setState(() {});
@@ -30,10 +33,16 @@ class _AdminPanelState extends State<AdminPanel> {
     setState(() {});
   }
 
+  getDeals() async {
+    dealsStream = await DatabaseServices().getData('deals');
+    setState(() {});
+  }
+
   @override
   void initState() {
     getCategories();
     getItems();
+    getDeals();
     super.initState();
   }
 
@@ -70,11 +79,7 @@ class _AdminPanelState extends State<AdminPanel> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return AllCategoriesAdminScreen();
-                        },
-                      ));
+                      Get.to(() => AllCategoriesAdminScreen());
                     },
                     child: Text(
                       'View all',
@@ -93,11 +98,7 @@ class _AdminPanelState extends State<AdminPanel> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return AllItemsAdmin();
-                        },
-                      ));
+                      Get.to(() => AllItemsAdmin());
                     },
                     child: Text(
                       'View all',
@@ -116,7 +117,7 @@ class _AdminPanelState extends State<AdminPanel> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Get.to(AllDealsAdminScreen());
+                      Get.to(() => AllDealsAdminScreen());
                     },
                     child: Text(
                       'View all',
@@ -125,7 +126,7 @@ class _AdminPanelState extends State<AdminPanel> {
                   ),
                 ],
               ),
-              getAllCatogeriesWidget(),
+              getAllDealsWidget(),
             ],
           ),
         ),
@@ -147,52 +148,60 @@ class _AdminPanelState extends State<AdminPanel> {
                 DocumentSnapshot ds = snapshot.data.docs[index];
                 return Padding(
                   padding: const EdgeInsets.all(3.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.skyBlueThemeColor,
-                          offset: const Offset(
-                            2.0,
-                            1.0,
-                          ),
-                          blurRadius: 6.0,
-                          spreadRadius: 1.0,
-                        ),
-                        BoxShadow(
-                          color: Colors.white,
-                          offset: const Offset(0.0, 0.0),
-                          blurRadius: 0.0,
-                          spreadRadius: 0.0,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Expanded(
-                            child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            ds['image'],
-                            fit: BoxFit.cover,
-                          ),
-                        )),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              ds['title'].toString(),
-                              style: CustomTextStyles.smallGreyColorStyle,
-                              textAlign: TextAlign.left,
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.to(() => ItemDetailAdmin(id: ds.id));
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.skyBlueThemeColor,
+                            offset: const Offset(
+                              2.0,
+                              1.0,
                             ),
-                            Text(
-                              '\$${ds['price']}',
-                              style: CustomTextStyles.smallBlackColorStyle,
+                            blurRadius: 6.0,
+                            spreadRadius: 1.0,
+                          ),
+                          BoxShadow(
+                            color: Colors.white,
+                            offset: const Offset(0.0, 0.0),
+                            blurRadius: 0.0,
+                            spreadRadius: 0.0,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Expanded(
+                              child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              ds['image'],
+                              fit: BoxFit.cover,
                             ),
-                          ],
-                        )
-                      ],
+                          )),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  ds['title'].toString(),
+                                  style: CustomTextStyles.smallGreyColorStyle,
+                                  textAlign: TextAlign.left,
+                                ),
+                                Text(
+                                  '\$${ds['price']}',
+                                  style: CustomTextStyles.smallBlackColorStyle,
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -267,6 +276,91 @@ class _AdminPanelState extends State<AdminPanel> {
                               ),
                               Text(''),
                             ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        } else {
+          return Center(
+            child: CircularProgressIndicator(
+              color: AppTheme.themeColor,
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget getAllDealsWidget() {
+    return StreamBuilder(
+      stream: dealsStream,
+      builder: (context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          return SizedBox(
+            height: 200,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: snapshot.data.docs.length,
+              itemBuilder: (context, index) {
+                DocumentSnapshot ds = snapshot.data.docs[index];
+                return Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.to(() => DealsDetailAdmin(id: ds.id));
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.skyBlueThemeColor,
+                            offset: const Offset(
+                              2.0,
+                              1.0,
+                            ),
+                            blurRadius: 6.0,
+                            spreadRadius: 1.0,
+                          ),
+                          BoxShadow(
+                            color: Colors.white,
+                            offset: const Offset(0.0, 0.0),
+                            blurRadius: 0.0,
+                            spreadRadius: 0.0,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Expanded(
+                              child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              ds['image'],
+                              fit: BoxFit.cover,
+                            ),
+                          )),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  ds['title'].toString(),
+                                  style: CustomTextStyles.smallGreyColorStyle,
+                                  textAlign: TextAlign.left,
+                                ),
+                                Text(
+                                  '\$${ds['price']}',
+                                  style: CustomTextStyles.smallBlackColorStyle,
+                                ),
+                              ],
+                            ),
                           )
                         ],
                       ),

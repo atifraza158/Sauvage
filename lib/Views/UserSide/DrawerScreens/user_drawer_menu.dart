@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Controllers/database_services.dart';
 import 'package:dine_in/Views/AuthScreens/login_screen.dart';
 import 'package:dine_in/Views/UserSide/CategoringScreens/catering_rates.dart';
@@ -21,6 +22,12 @@ class UserDrawerMenu extends StatefulWidget {
 class _UserDrawerMenuState extends State<UserDrawerMenu> {
   User? currentUser;
   DatabaseServices controller = Get.put(DatabaseServices());
+  Stream? userStream;
+  getUser() async {
+    userStream = await DatabaseServices().getData('auth');
+    setState(() {});
+  }
+
   checkUser() {
     FirebaseAuth.instance.authStateChanges().listen((user) {
       setState(() {
@@ -32,6 +39,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
   @override
   void initState() {
     checkUser();
+    getUser();
     super.initState();
   }
 
@@ -60,9 +68,27 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                       Wrap(
                         direction: Axis.vertical,
                         children: [
-                          Text(
-                            "username",
-                            style: CustomTextStyles.drawerElementsStyle,
+                          StreamBuilder(
+                            stream: FirebaseFirestore.instance
+                                .collection('auth')
+                                .doc(currentUser!.uid)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                DocumentSnapshot<Map<String, dynamic>>?
+                                    userDoc = snapshot.data;
+                                String username = userDoc!['name'];
+                                return Text(
+                                  username,
+                                  style: CustomTextStyles.drawerElementsStyle,
+                                );
+                              } else {
+                                return Text(
+                                  "username",
+                                  style: CustomTextStyles.drawerElementsStyle,
+                                );
+                              }
+                            },
                           ),
                           Text(
                             currentUser != null

@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:flutter/material.dart';
 
+import '../../Utils/Styles/theme.dart';
+
 class ItemDetailAdmin extends StatefulWidget {
   final String id;
   const ItemDetailAdmin({
@@ -58,9 +60,18 @@ class _ItemDetailAdminState extends State<ItemDetailAdmin> {
                           '${ds['title']}',
                           style: CustomTextStyles.appBarStyle,
                         ),
-                        Text(
-                          'Price: \$${ds['price']}',
-                          style: CustomTextStyles.mediumBlackColorStyle2,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Price",
+                              style: CustomTextStyles.mediumBlackColorStyle2,
+                            ),
+                            Text(
+                              '\$${ds['price']}',
+                              style: CustomTextStyles.mediumBlackColorStyle2,
+                            ),
+                          ],
                         ),
                         SizedBox(height: 10),
                         Text(
@@ -83,6 +94,34 @@ class _ItemDetailAdminState extends State<ItemDetailAdmin> {
             );
           }
         },
+      ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            backgroundColor: AppTheme.themeColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+            onPressed: () {},
+            child: Icon(
+              Icons.delete,
+              color: AppTheme.whiteColor,
+            ),
+          ),
+          SizedBox(width: 10),
+          FloatingActionButton(
+            backgroundColor: AppTheme.themeColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(50),
+            ),
+            onPressed: () {},
+            child: Icon(
+              Icons.edit,
+              color: AppTheme.whiteColor,
+            ),
+          ),
+        ],
       ),
     );
   }
