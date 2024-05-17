@@ -1,4 +1,4 @@
-import 'package:dine_in/Views/UserSide/CategoringScreens/catering_rates.dart';
+import 'package:dine_in/Views/UserSide/ItemsScreens/all_items_user.dart';
 import 'package:dine_in/Views/UserSide/home_screen.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +22,7 @@ class _MainScreenUserState extends State<MainScreenUser> {
 
   List<Widget> screens = [
     HomeScreen(),
-    CateringScreen(),
+    AllItemsUser(),
     UserProfile(),
   ];
   @override

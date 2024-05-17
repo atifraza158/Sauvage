@@ -240,8 +240,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   // SizedBox(height: 2),
-                  // getItemsWdget(),
-                  dineInWidget(),
+                  getAllItemsWidget(),
+                  // dineInWidget(),
                   Text(
                     "Categories",
                     style: CustomTextStyles.heading1,
@@ -708,4 +708,95 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       );
+
+  Widget getAllItemsWidget() {
+    return SizedBox(
+      height: 200,
+      child: StreamBuilder(
+        stream: itemsStream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: snapshot.data.docs.length <= 5
+                  ? snapshot.data.docs.length
+                  : 5,
+              itemBuilder: (context, index) {
+                DocumentSnapshot ds = snapshot.data.docs[index];
+                return Padding(
+                  padding: const EdgeInsets.only(right: 10, bottom: 10),
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      width: 230,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: AppTheme.blueThemeColor,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            blurRadius: 4,
+                            offset: Offset(4, 8),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '${ds['title']}',
+                                      style: CustomTextStyles.commonButtonStyle,
+                                    ),
+                                  ),
+                                  Text(
+                                    '\$ 15.99',
+                                    style: CustomTextStyles.drawerElementsStyle,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                                child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.network(
+                                      ds['image'],
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ))
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(
+                color: AppTheme.themeColor,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
 }

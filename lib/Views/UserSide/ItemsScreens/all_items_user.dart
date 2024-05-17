@@ -1,21 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dine_in/Views/AdminSide/ItemsScreens/add_item.dart';
-import 'package:dine_in/Views/AdminSide/ItemsScreens/item_detail_admin.dart';
+import 'package:dine_in/Views/UserSide/ItemsScreens/item_detail_User.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
+import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../Controllers/database_services.dart';
-import '../../Utils/Styles/theme.dart';
 
-class AllItemsAdmin extends StatefulWidget {
-  const AllItemsAdmin({super.key});
+class AllItemsUser extends StatefulWidget {
+  const AllItemsUser({super.key});
 
   @override
-  State<AllItemsAdmin> createState() => _AllItemsAdminState();
+  State<AllItemsUser> createState() => _AllItemsUserState();
 }
 
-class _AllItemsAdminState extends State<AllItemsAdmin> {
+class _AllItemsUserState extends State<AllItemsUser> {
   Stream? itemsStream;
   getItems() async {
     itemsStream = await DatabaseServices().getData('items');
@@ -38,19 +37,6 @@ class _AllItemsAdminState extends State<AllItemsAdmin> {
         ),
       ),
       body: getItemsWidget(),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.themeColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100),
-        ),
-        onPressed: () {
-          Get.to(() => AddItem());
-        },
-        child: Icon(
-          Icons.add,
-          color: AppTheme.whiteColor,
-        ),
-      ),
     );
   }
 
@@ -69,7 +55,7 @@ class _AllItemsAdminState extends State<AllItemsAdmin> {
                 padding: const EdgeInsets.all(10.0),
                 child: GestureDetector(
                   onTap: () {
-                    Get.to(ItemDetailAdmin(id: ds.id));
+                    Get.to(ItemDetailUser(id: ds.id));
                   },
                   child: Container(
                     decoration: BoxDecoration(

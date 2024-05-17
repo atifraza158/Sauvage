@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Controllers/database_services.dart';
 import 'package:dine_in/Views/AuthScreens/login_screen.dart';
-import 'package:dine_in/Views/UserSide/CategoringScreens/catering_rates.dart';
+import 'package:dine_in/Views/UserSide/ItemsScreens/all_items_user.dart';
 import 'package:dine_in/Views/UserSide/DineInScreens/all_dine_in.dart';
 import 'package:dine_in/Views/UserSide/take_out.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
@@ -167,7 +167,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
-                        return CateringScreen();
+                        return AllItemsUser();
                       },
                     ));
                   },
