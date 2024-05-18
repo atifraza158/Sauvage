@@ -58,54 +58,53 @@ class _AllItemsUserState extends State<AllItemsUser> {
                     Get.to(ItemDetailUser(id: ds.id));
                   },
                   child: Container(
+                    width: 200,
+                    height: 120,
                     decoration: BoxDecoration(
-                      color: AppTheme.skyBlueThemeColor,
-                      borderRadius: BorderRadius.circular(16),
+                      color: AppTheme.themeColor,
+                      borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.skyBlueThemeColor,
-                          offset: const Offset(
-                            2.0,
-                            1.0,
-                          ),
-                          blurRadius: 6.0,
-                          spreadRadius: 1.0,
-                        ),
-                        BoxShadow(
-                          color: Colors.white,
-                          offset: const Offset(0.0, 0.0),
-                          blurRadius: 0.0,
-                          spreadRadius: 0.0,
+                          color: AppTheme.greyColor.withOpacity(0.5),
+                          blurRadius: 4,
+                          offset: Offset(4, 8),
                         ),
                       ],
                     ),
-                    child: Column(
-                      children: [
-                        Expanded(
-                            child: ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
-                          child: Image.network(
-                            ds['image'],
-                            fit: BoxFit.cover,
-                          ),
-                        )),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: Text(
-                                  ds['title'],
-                                  style:
-                                      CustomTextStyles.mediumBlackColorStyle2,
+                                  '${ds['title']}',
+                                  style: CustomTextStyles.commonButtonStyle,
                                 ),
                               ),
-                              Text("\$" + ds['price']),
+                              Text(
+                                '\$ ${ds['price']}',
+                                style: CustomTextStyles.drawerElementsStyle,
+                              ),
                             ],
                           ),
-                        ),
-                      ],
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.bottomRight,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  ds['image'],
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -198,6 +198,7 @@ class _AddItemState extends State<AddItem> {
                           'title': titleController.text.toString(),
                           'price': priceController.text.toString(),
                           'description': descriptionController.text.toString(),
+                          'category_id': selectedValue,
                           'image': imageUrlFireStore,
                         };
 

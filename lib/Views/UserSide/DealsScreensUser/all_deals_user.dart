@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dine_in/Views/UserSide/DealsScreensUser/deal_detail_user.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../../Controllers/database_services.dart';
-import '../Utils/Styles/text_styles.dart';
-import '../Utils/Styles/theme.dart';
+import '../../../Controllers/database_services.dart';
+import '../../Utils/Styles/text_styles.dart';
+import '../../Utils/Styles/theme.dart';
 
 class AllDealsUser extends StatefulWidget {
   const AllDealsUser({super.key});
@@ -52,7 +54,9 @@ class _AllDealsUserState extends State<AllDealsUser> {
               return Padding(
                 padding: const EdgeInsets.all(8),
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Get.to(() => DealDetailUser(id: ds.id));
+                  },
                   child: Container(
                     width: 200,
                     height: 120,

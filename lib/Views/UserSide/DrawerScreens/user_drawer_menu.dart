@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Controllers/database_services.dart';
 import 'package:dine_in/Views/AuthScreens/login_screen.dart';
 import 'package:dine_in/Views/UserSide/ItemsScreens/all_items_user.dart';
-import 'package:dine_in/Views/UserSide/DineInScreens/all_dine_in.dart';
-import 'package:dine_in/Views/UserSide/all_deals_user.dart';
+import 'package:dine_in/Views/UserSide/DealsScreensUser/all_deals_user.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -135,11 +134,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return AllDineInScreen();
-                      },
-                    ));
+                    Get.to(() => AllItemsUser());
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 15),
@@ -152,37 +147,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                         ),
                         SizedBox(width: 12),
                         Text(
-                          "Dine In",
-                          style: CustomTextStyles.drawerElementsStyle,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Divider(),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return AllItemsUser();
-                      },
-                    ));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.restaurant_menu,
-                          color: AppTheme.whiteColor,
-                          size: 20,
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          "Catering",
+                          "All Items",
                           style: CustomTextStyles.drawerElementsStyle,
                         ),
                       ],
@@ -208,7 +173,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                         ),
                         SizedBox(width: 12),
                         Text(
-                          "Take Out",
+                          "Deals Available",
                           style: CustomTextStyles.drawerElementsStyle,
                         ),
                       ],

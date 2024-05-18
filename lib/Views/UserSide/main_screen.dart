@@ -1,4 +1,5 @@
 import 'package:dine_in/Views/UserSide/ItemsScreens/all_items_user.dart';
+import 'package:dine_in/Views/UserSide/cart_screen.dart';
 import 'package:dine_in/Views/UserSide/home_screen.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class _MainScreenUserState extends State<MainScreenUser> {
   List<Widget> screens = [
     HomeScreen(),
     AllItemsUser(),
+    CartScreen(),
     UserProfile(),
   ];
   @override
@@ -49,12 +51,12 @@ class _MainScreenUserState extends State<MainScreenUser> {
                 color: selectedPage == 1 ? Colors.white : Colors.black,
               ),
               label: "Deals"),
-          // NavigationDestination(
-          //     icon: Icon(
-          //       Icons.shopping_cart,
-          //       color: selectedPage == 2 ? Colors.white : Colors.black,
-          //     ),
-          //     label: "Cart"),
+          NavigationDestination(
+              icon: Icon(
+                Icons.shopping_cart_sharp,
+                color: selectedPage == 2 ? Colors.white : Colors.black,
+              ),
+              label: "Cart"),
           NavigationDestination(
               icon: Icon(
                 Icons.person,
