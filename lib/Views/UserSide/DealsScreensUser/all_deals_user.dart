@@ -85,14 +85,9 @@ class _AllDealsUserState extends State<AllDealsUser> {
                             style: CustomTextStyles.drawerElementsStyle,
                           ),
                           Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.network(ds['image']),
-                                ),
-                              ],
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(ds['image']),
                             ),
                           )
                         ],

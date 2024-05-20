@@ -327,7 +327,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         );
                       } else {
-                        return Center(child: CircularProgressIndicator());
+                        return Center(
+                            child: CircularProgressIndicator(
+                          color: AppTheme.themeColor,
+                        ));
                       }
                     },
                   )

@@ -35,12 +35,6 @@ class DatabaseServices extends GetxController {
     return FirebaseFirestore.instance.collection(collectionName).snapshots();
   }
 
-  // Future UpdateItem(String id, Map<String, dynamic> itemDetails) async {
-  //   return await FirebaseFirestore.instance
-  //       .collection('items')
-  //       .doc(id)
-  //       .update(itemDetails);
-  // }
   Future UpdateItem(String id, Map<String, dynamic> itemDetails) async {
     final docRef = FirebaseFirestore.instance.collection('items').doc(id);
     final doc = await docRef.get();
@@ -48,7 +42,6 @@ class DatabaseServices extends GetxController {
     if (doc.exists) {
       return await docRef.update(itemDetails);
     } else {
-      // Handle the case when the document doesn't exist
       print('Document does not exist');
     }
   }

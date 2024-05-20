@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Views/AdminSide/DealsScreens/all_deals_admin.dart';
 import 'package:dine_in/Views/AdminSide/ItemsScreens/all_items_admin.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
@@ -21,9 +22,14 @@ class AdminDrawerMenu extends StatefulWidget {
 class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
   User? currentUser;
   DatabaseServices controller = Get.put(DatabaseServices());
+  Stream? userStream;
+  getUser() async {
+    userStream = await DatabaseServices().getData('auth');
+    setState(() {});
+  }
 
   checkUser() {
-    FirebaseAuth.instance.authStateChanges().listen((user) {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
       setState(() {
         currentUser = user;
       });
@@ -33,6 +39,7 @@ class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
   @override
   void initState() {
     checkUser();
+    getUser();
     super.initState();
   }
 
@@ -50,7 +57,7 @@ class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: NetworkImage(''),
+                  child: Icon(Icons.person),
                 ),
                 SizedBox(width: 10),
                 Expanded(
@@ -61,14 +68,32 @@ class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
                       Wrap(
                         direction: Axis.vertical,
                         children: [
-                          Text(
-                            currentUser == null ? "username" : "username",
-                            style: CustomTextStyles.drawerElementsStyle,
+                          StreamBuilder(
+                            stream: FirebaseFirestore.instance
+                                .collection('auth')
+                                .doc(currentUser!.uid)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                DocumentSnapshot<Map<String, dynamic>>?
+                                    userDoc = snapshot.data;
+                                String username = userDoc!['name'];
+                                return Text(
+                                  username,
+                                  style: CustomTextStyles.drawerElementsStyle,
+                                );
+                              } else {
+                                return Text(
+                                  "username",
+                                  style: CustomTextStyles.drawerElementsStyle,
+                                );
+                              }
+                            },
                           ),
                           Text(
-                            currentUser == null
-                                ? 'example@gmail.com'
-                                : "${currentUser!.email}",
+                            currentUser != null
+                                ? "${currentUser!.email}"
+                                : 'example@gmail.com',
                             style: CustomTextStyles.drawerElementsStyle,
                           ),
                         ],

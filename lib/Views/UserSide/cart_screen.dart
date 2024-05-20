@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Controllers/cart_controller.dart';
+import 'package:dine_in/Views/UserSide/checkout.dart';
+import 'package:dine_in/Views/Utils/Components/login_button.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
+import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,27 +16,8 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  CartController cartController = Get.put(CartController());
-
-  Stream? cartStream;
   User? currentUser;
-  @override
-  void initState() {
-    super.initState();
-    getUser();
-    checkUser();
-  }
-
-  void getUser() {
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      setState(() {
-        currentUser = user;
-      });
-      if (currentUser != null) {
-        getCartData(currentUser!.uid);
-      }
-    });
-  }
+  CartController cartController = Get.put(CartController());
 
   checkUser() {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
@@ -43,13 +27,10 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  void getCartData(String userId) {
-    setState(() {
-      cartStream = FirebaseFirestore.instance
-          .collection('carts')
-          .where('id', isEqualTo: userId)
-          .snapshots();
-    });
+  @override
+  void initState() {
+    checkUser();
+    super.initState();
   }
 
   @override
@@ -64,83 +45,164 @@ class _CartScreenState extends State<CartScreen> {
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('carts')
-            .where('id', isEqualTo: currentUser!.uid)
+            .doc(currentUser!.uid)
             .snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            QuerySnapshot<Map<String, dynamic>>? cartData = snapshot.data;
-            List<QueryDocumentSnapshot> documents = cartData!.docs;
-            return ListView.builder(
-              itemCount: documents.length,
-              itemBuilder: (context, index) {
-                QueryDocumentSnapshot document = documents[index];
-
-                return ListTile(
-                  title: Text(document['title']),
-                );
-              },
-            );
-            // return Text('${cartData}');
+          if (snapshot.connectionState == ConnectionState.active) {
+            if (snapshot.hasData) {
+              Map<String, dynamic>? ds = snapshot.data!.data();
+              return Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: ds!['items'].length,
+                      itemBuilder: (context, index) {
+                        return StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('items')
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              DocumentSnapshot document =
+                                  snapshot.data!.docs[index];
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.themeColor,
+                                    borderRadius: BorderRadius.circular(14),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            AppTheme.greyColor.withOpacity(0.5),
+                                        blurRadius: 4,
+                                        offset: Offset(4, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundImage:
+                                            NetworkImage(document['image']),
+                                      ),
+                                      title: Text(
+                                        document['title'],
+                                        style: CustomTextStyles
+                                            .smallWhiteColorStyle,
+                                      ),
+                                      trailing: Text(
+                                        "\$" + document['price'],
+                                        style: CustomTextStyles
+                                            .smallWhiteColorStyle,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: ds['deals'].length,
+                      itemBuilder: (context, index) {
+                        return StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('deals')
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              DocumentSnapshot document =
+                                  snapshot.data!.docs[index];
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.themeColor,
+                                    borderRadius: BorderRadius.circular(14),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            AppTheme.greyColor.withOpacity(0.5),
+                                        blurRadius: 4,
+                                        offset: Offset(4, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundImage:
+                                            NetworkImage(document['image']),
+                                      ),
+                                      title: Text(
+                                        document['title'],
+                                        style: CustomTextStyles
+                                            .smallWhiteColorStyle,
+                                      ),
+                                      trailing: Text(
+                                        "\$" + document['price'],
+                                        style: CustomTextStyles
+                                            .smallWhiteColorStyle,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text(snapshot.error.toString()),
+              );
+            } else {
+              return Center(
+                child: CircularProgressIndicator(
+                  color: AppTheme.themeColor,
+                ),
+              );
+            }
           } else {
             return Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: AppTheme.themeColor,
+              ),
             );
           }
         },
       ),
-      // body: currentUser == null
-      //     ? Center(
-      //         child: CircularProgressIndicator(color: AppTheme.themeColor),
-      //       )
-      //     : StreamBuilder<QuerySnapshot>(
-      //         stream: cartStream as Stream<QuerySnapshot>?,
-      //         builder: (context, snapshot) {
-      //           if (snapshot.connectionState == ConnectionState.waiting) {
-      //             return Center(
-      //               child:
-      //                   CircularProgressIndicator(color: AppTheme.themeColor),
-      //             );
-      //           }
-      //           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-      //             return Center(
-      //               child: Text('Your cart is empty'),
-      //             );
-      //           }
-      //           var documents = snapshot.data!.docs;
-      //           return ListView.builder(
-      //             itemCount: documents.length,
-      //             itemBuilder: (context, index) {
-      //               DocumentSnapshot ds = documents[index];
-      //               return Container(
-      //                 child: Text(ds['items'].toString()),
-      //               );
-      //             },
-      //           );
-      //         },
-      //       ),
-      // body: StreamBuilder(
-      //   stream: cartStream,
-      //   builder: (context, snapshot) {
-      //     if (snapshot.hasData) {
-      //       var documents = snapshot.data!.docs;
-      //       return ListView.builder(
-      //         itemCount: documents.length,
-      //         itemBuilder: (context, index) {
-      //           DocumentSnapshot ds = documents[index];
-      //           return Container(
-      //             child: Text(ds['items'].toString()),
-      //           );
-      //         },
-      //       );
-      //     } else {
-      //       return Center(
-      //         child: CircularProgressIndicator(
-      //           color: AppTheme.themeColor,
-      //         ),
-      //       );
-      //     }
-      //   },
-      // ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: CommonButton(
+          child: Text(
+            "CheckOut",
+            style: CustomTextStyles.commonButtonStyle,
+          ),
+          onPressed: () {
+            Get.to(() => CheckOutScreen());
+          },
+        ),
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dine_in/Views/UserSide/cart_screen.dart';
+import 'package:dine_in/Controllers/cart_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import '../../Utils/Components/login_button.dart';
@@ -18,6 +19,7 @@ class DealDetailUser extends StatefulWidget {
 }
 
 class _DealDetailUserState extends State<DealDetailUser> {
+  CartController cartController = Get.put(CartController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +38,9 @@ class _DealDetailUserState extends State<DealDetailUser> {
             style: CustomTextStyles.commonButtonStyle,
           ),
           onPressed: () {
-            Get.to(() => CartScreen());
+            cartController.addDealToCart(widget.id).then((value) {
+              Fluttertoast.showToast(msg: "Deal added to cart");
+            });
           },
         ),
       ),

@@ -90,11 +90,33 @@ class _AddDealState extends State<AddDeal> {
                     obsecureText: false,
                   ),
                   const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      Get.bottomSheet(AllItemsBottomSheet());
-                    },
-                    child: Text("Items"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Select items to add",
+                        style: CustomTextStyles.smallGreyColorStyle,
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.themeColor),
+                        onPressed: () {
+                          Get.bottomSheet(AllItemsBottomSheet());
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              "Items",
+                              style: CustomTextStyles.smallWhiteColorStyle,
+                            ),
+                            Icon(
+                              Icons.arrow_drop_down_rounded,
+                              color: AppTheme.whiteColor,
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 10),
                   TextArea(

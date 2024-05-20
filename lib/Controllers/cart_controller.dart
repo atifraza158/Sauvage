@@ -35,6 +35,35 @@ class CartController extends GetxController {
     }
   }
 
+  Future<void> addDealToCart(String itemId) async {
+    try {
+      loader = true.obs;
+      update();
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+      final cartRef =
+          FirebaseFirestore.instance.collection('carts').doc(userId);
+      // final itemRef = FirebaseFirestore.instance.collection('items').doc(itemId);
+
+      await cartRef.get().then((cartDoc) {
+        if (!cartDoc.exists) {
+          cartRef.set({
+            'deals': [itemId]
+          });
+          loader(false);
+        } else {
+          cartRef.update({
+            'deals': FieldValue.arrayUnion([itemId])
+          });
+          loader(false);
+        }
+      });
+    } catch (e) {
+      print(e.toString());
+      loader = false.obs;
+      update();
+    }
+  }
+
   Future<Stream<QuerySnapshot>> getData(String collectName) async {
     return FirebaseFirestore.instance.collection(collectName).snapshots();
   }
