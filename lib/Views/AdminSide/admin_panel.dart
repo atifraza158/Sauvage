@@ -181,6 +181,10 @@ class _AdminPanelState extends State<AdminPanel> {
                             child: Image.network(
                               ds['image'],
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(Icons
+                                    .error); // or any other widget you want to display
+                              },
                             ),
                           )),
                           Padding(
@@ -264,6 +268,10 @@ class _AdminPanelState extends State<AdminPanel> {
                             child: Image.network(
                               ds['image'],
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(Icons
+                                    .error); // or any other widget you want to display
+                              },
                             ),
                           )),
                           Row(
@@ -343,6 +351,10 @@ class _AdminPanelState extends State<AdminPanel> {
                             child: Image.network(
                               ds['image'],
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(Icons
+                                    .error); // or any other widget you want to display
+                              },
                             ),
                           )),
                           Padding(

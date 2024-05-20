@@ -1,9 +1,9 @@
-import 'package:dine_in/Views/UserSide/checkout.dart';
-import 'package:dine_in/Views/Utils/Components/login_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dine_in/Controllers/cart_controller.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
-import 'package:dine_in/Views/Utils/Styles/theme.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -13,12 +13,45 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  List<CartItem> _cartItems = [
-    CartItem(name: 'Chicken Karahi (Bone-In)', price: 24.99, quantity: 1),
-    CartItem(name: 'Rose Falooda Ice Cream', price: 5.99, quantity: 1),
-    CartItem(name: 'Mango, Sweet, Salty Lassi', price: 5.99, quantity: 1),
-  ];
-  String totalPrice = '36.97';
+  CartController cartController = Get.put(CartController());
+
+  Stream? cartStream;
+  User? currentUser;
+  @override
+  void initState() {
+    super.initState();
+    getUser();
+    checkUser();
+  }
+
+  void getUser() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      setState(() {
+        currentUser = user;
+      });
+      if (currentUser != null) {
+        getCartData(currentUser!.uid);
+      }
+    });
+  }
+
+  checkUser() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      setState(() {
+        currentUser = user;
+      });
+    });
+  }
+
+  void getCartData(String userId) {
+    setState(() {
+      cartStream = FirebaseFirestore.instance
+          .collection('carts')
+          .where('id', isEqualTo: userId)
+          .snapshots();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,117 +61,86 @@ class _CartScreenState extends State<CartScreen> {
           style: CustomTextStyles.appBarStyle,
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: _cartItems.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppTheme.skyBlueThemeColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          _cartItems[index].name,
-                          style: CustomTextStyles.mediumBlackColorStyle2,
-                        ),
-                        subtitle: Text(
-                          'Price: \$${_cartItems[index].price.toStringAsFixed(2)}',
-                          style: CustomTextStyles.smallGreyColorStyle,
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppTheme.whiteColor,
-                              ),
-                              child: IconButton(
-                                icon: Icon(Icons.remove),
-                                onPressed: () {
-                                  setState(() {
-                                    if (_cartItems[index].quantity > 1) {
-                                      _cartItems[index].quantity--;
-                                    }
-                                  });
-                                },
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              _cartItems[index].quantity.toString(),
-                              style: CustomTextStyles.mediumBlackColorStyle2,
-                            ),
-                            SizedBox(width: 8),
-                            Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppTheme.whiteColor,
-                              ),
-                              child: IconButton(
-                                icon: Icon(Icons.add),
-                                onPressed: () {
-                                  setState(() {
-                                    _cartItems[index].quantity++;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        onTap: () {},
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Selected items(3)',
-                  style: CustomTextStyles.mediumBlackColorStyle2,
-                ),
-                Text(
-                  "Total: \$${totalPrice}",
-                  style: CustomTextStyles.mediumGreyColorStyle,
-                ),
-              ],
-            )
-          ],
-        ),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('carts')
+            .where('id', isEqualTo: currentUser!.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            QuerySnapshot<Map<String, dynamic>>? cartData = snapshot.data;
+            List<QueryDocumentSnapshot> documents = cartData!.docs;
+            return ListView.builder(
+              itemCount: documents.length,
+              itemBuilder: (context, index) {
+                QueryDocumentSnapshot document = documents[index];
+
+                return ListTile(
+                  title: Text(document['title']),
+                );
+              },
+            );
+            // return Text('${cartData}');
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: CommonButton(
-            child: Text(
-              'CheckOut',
-              style: CustomTextStyles.commonButtonStyle,
-            ),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(
-                builder: (context) {
-                  return CheckOutScreen();
-                },
-              ));
-            }),
-      ),
+      // body: currentUser == null
+      //     ? Center(
+      //         child: CircularProgressIndicator(color: AppTheme.themeColor),
+      //       )
+      //     : StreamBuilder<QuerySnapshot>(
+      //         stream: cartStream as Stream<QuerySnapshot>?,
+      //         builder: (context, snapshot) {
+      //           if (snapshot.connectionState == ConnectionState.waiting) {
+      //             return Center(
+      //               child:
+      //                   CircularProgressIndicator(color: AppTheme.themeColor),
+      //             );
+      //           }
+      //           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      //             return Center(
+      //               child: Text('Your cart is empty'),
+      //             );
+      //           }
+      //           var documents = snapshot.data!.docs;
+      //           return ListView.builder(
+      //             itemCount: documents.length,
+      //             itemBuilder: (context, index) {
+      //               DocumentSnapshot ds = documents[index];
+      //               return Container(
+      //                 child: Text(ds['items'].toString()),
+      //               );
+      //             },
+      //           );
+      //         },
+      //       ),
+      // body: StreamBuilder(
+      //   stream: cartStream,
+      //   builder: (context, snapshot) {
+      //     if (snapshot.hasData) {
+      //       var documents = snapshot.data!.docs;
+      //       return ListView.builder(
+      //         itemCount: documents.length,
+      //         itemBuilder: (context, index) {
+      //           DocumentSnapshot ds = documents[index];
+      //           return Container(
+      //             child: Text(ds['items'].toString()),
+      //           );
+      //         },
+      //       );
+      //     } else {
+      //       return Center(
+      //         child: CircularProgressIndicator(
+      //           color: AppTheme.themeColor,
+      //         ),
+      //       );
+      //     }
+      //   },
+      // ),
     );
   }
-}
-
-class CartItem {
-  String name;
-  double price;
-  int quantity;
-
-  CartItem({required this.name, required this.price, required this.quantity});
 }

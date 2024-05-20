@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Views/AdminSide/AdminDrawer/admin_drawer_screen.dart';
+import 'package:dine_in/Views/AdminSide/ItemsScreens/all_items_admin.dart';
 import 'package:dine_in/Views/AuthScreens/auth_check.dart';
 import 'package:dine_in/Views/UserSide/DrawerScreens/user_drawer_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,22 +14,57 @@ class DatabaseServices extends GetxController {
   Future addData(
       Map<String, dynamic> data, String id, String collectionName) async {
     try {
-      loader(true);
+      loader = true.obs;
+      update();
       return await FirebaseFirestore.instance
           .collection(collectionName)
           .doc(id)
           .set(data)
-          .then(
-            (value) => loader(false),
-          );
+          .then((value) {
+        loader = false.obs;
+        update();
+      });
     } catch (e) {
-      loader(false);
+      loader = false.obs;
+      update();
       print(e.toString());
     }
   }
 
-  Future<Stream<QuerySnapshot>> getData(String collectName) async {
-    return FirebaseFirestore.instance.collection(collectName).snapshots();
+  Future<Stream<QuerySnapshot>> getData(String collectionName) async {
+    return FirebaseFirestore.instance.collection(collectionName).snapshots();
+  }
+
+  // Future UpdateItem(String id, Map<String, dynamic> itemDetails) async {
+  //   return await FirebaseFirestore.instance
+  //       .collection('items')
+  //       .doc(id)
+  //       .update(itemDetails);
+  // }
+  Future UpdateItem(String id, Map<String, dynamic> itemDetails) async {
+    final docRef = FirebaseFirestore.instance.collection('items').doc(id);
+    final doc = await docRef.get();
+
+    if (doc.exists) {
+      return await docRef.update(itemDetails);
+    } else {
+      // Handle the case when the document doesn't exist
+      print('Document does not exist');
+    }
+  }
+
+  Future deleteData(String id, String collectionName) async {
+    return await FirebaseFirestore.instance
+        .collection(collectionName)
+        .doc(id)
+        .delete()
+        .then((value) {
+      Fluttertoast.showToast(msg: "Item Deleted Successfully");
+      Get.off(() => AllItemsAdmin());
+    }).onError((error, stackTrace) {
+      Fluttertoast.showToast(msg: 'Error While Deleting the item');
+      print(error);
+    });
   }
 
   // Here are the Auth Services below

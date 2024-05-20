@@ -28,7 +28,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
   }
 
   checkUser() {
-    FirebaseAuth.instance.authStateChanges().listen((user) {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
       setState(() {
         currentUser = user;
       });

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dine_in/Views/UserSide/cart_screen.dart';
+import 'package:dine_in/Controllers/cart_controller.dart';
+import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import '../../Utils/Components/login_button.dart';
@@ -18,6 +20,7 @@ class ItemDetailUser extends StatefulWidget {
 }
 
 class _ItemDetailUserState extends State<ItemDetailUser> {
+  CartController cartController = Get.put(CartController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,12 +105,24 @@ class _ItemDetailUserState extends State<ItemDetailUser> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(20.0),
         child: CommonButton(
-          child: Text(
-            "Add to Cart",
-            style: CustomTextStyles.commonButtonStyle,
+          child: Obx(
+            () => cartController.loader.isTrue
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.whiteColor,
+                    ),
+                  )
+                : Text(
+                    "Add to Cart",
+                    style: CustomTextStyles.commonButtonStyle,
+                  ),
           ),
           onPressed: () {
-            Get.to(() => CartScreen());
+            cartController.addItemToCart(widget.id).then((value) {
+              Fluttertoast.showToast(msg: 'item added to cart');
+            }).onError((error, stackTrace) {
+              print(error);
+            });
           },
         ),
       ),

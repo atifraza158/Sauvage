@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dine_in/Controllers/database_services.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../Utils/Styles/text_styles.dart';
 
@@ -16,6 +18,8 @@ class DealsDetailAdmin extends StatefulWidget {
 }
 
 class _DealsDetailAdminState extends State<DealsDetailAdmin> {
+  String title = '';
+  DatabaseServices controller = Get.put(DatabaseServices());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +37,8 @@ class _DealsDetailAdminState extends State<DealsDetailAdmin> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             DocumentSnapshot<Map<String, dynamic>>? ds = snapshot.data;
-            var itemIds = List<dynamic>.from(ds!['items']);
+            title = ds!['title'];
+            var itemIds = List<dynamic>.from(ds['items']);
             return Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
@@ -153,7 +158,31 @@ class _DealsDetailAdminState extends State<DealsDetailAdmin> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(50),
             ),
-            onPressed: () {},
+            onPressed: () {
+              Get.dialog(AlertDialog(
+                content: Text(
+                  "Are you sure you want to delete this?",
+                ),
+                title: Text("${title}"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+                    child: Text("No"),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      controller.deleteData(
+                        widget.id,
+                        'deals',
+                      );
+                    },
+                    child: Text("Yes"),
+                  ),
+                ],
+              ));
+            },
             child: Icon(
               Icons.delete,
               color: AppTheme.whiteColor,
