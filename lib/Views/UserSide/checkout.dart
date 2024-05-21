@@ -1,11 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dine_in/Views/UserSide/order_placed.dart';
+import 'package:dine_in/Views/Utils/Components/common_field.dart';
 import 'package:dine_in/Views/Utils/Components/login_button.dart';
 import 'package:dine_in/Views/Utils/Styles/text_styles.dart';
 import 'package:dine_in/Views/Utils/Styles/theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 
 class CheckOutScreen extends StatefulWidget {
-  const CheckOutScreen({super.key});
+  final List items;
+  final List deals;
+  const CheckOutScreen({
+    super.key,
+    required this.items,
+    required this.deals,
+  });
 
   @override
   State<CheckOutScreen> createState() => _CheckOutScreenState();
@@ -13,6 +24,26 @@ class CheckOutScreen extends StatefulWidget {
 
 class _CheckOutScreenState extends State<CheckOutScreen> {
   TextEditingController dateTimeController = TextEditingController();
+  final cardName = TextEditingController();
+  final cardNoController = TextEditingController();
+  final cvvController = TextEditingController();
+
+  User? currentUser;
+  checkUser() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      setState(() {
+        currentUser = user;
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    checkUser();
+    super.initState();
+  }
+
+  final key = GlobalKey<FormState>();
   int isSelected = 0;
   @override
   Widget build(BuildContext context) {
@@ -20,189 +51,20 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.shopping_cart_rounded,
-                        color: AppTheme.themeColor,
-                        size: 70,
-                      ),
-                      Text(
-                        "Summary",
-                        style: CustomTextStyles.mediumThemeColorColorStyle,
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20),
-                Column(
-                  children: [
-                    itemsTiles('Chicken Karahhi', '24.99'),
-                    itemsTiles('Rose Falooda Ice Crean', '5.99'),
-                    itemsTiles('Mango, Sweet, Salty Lassi', '5.99'),
-                  ],
-                ),
-                SizedBox(height: 30),
-                itemsTiles('Total', '36.97'),
-                SizedBox(height: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Card Holder Name ",
-                      style: CustomTextStyles.mediumBlackColorStyle2,
-                    ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        focusColor: AppTheme.themeColor,
-                        hoverColor: AppTheme.themeColor,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      "Card Number: ",
-                      style: CustomTextStyles.mediumBlackColorStyle2,
-                    ),
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.credit_card,
-                          color: AppTheme.themeColor,
-                          size: 40,
-                        ),
-                        focusColor: AppTheme.themeColor,
-                        hoverColor: AppTheme.themeColor,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Exp. Date",
-                                style: CustomTextStyles.mediumBlackColorStyle2,
-                              ),
-                              TextFormField(
-                                controller: dateTimeController,
-                                decoration: InputDecoration(
-                                    suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _selectDate();
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.timer,
-                                    color: AppTheme.themeColor,
-                                  ),
-                                )),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 20),
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "CVV",
-                                style: CustomTextStyles.mediumBlackColorStyle2,
-                              ),
-                              TextFormField(),
-                            ],
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: CommonButton(
-          child: Text(
-            "CheckOut",
-            style: CustomTextStyles.commonButtonStyle,
-          ),
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(
-              builder: (context) {
-                return OrderPlacedSuccessfully();
-              },
-            ));
-          },
-        ),
-      ),
-    );
-  }
-
-  paymentButton({required int index, required String imagePath}) =>
-      GestureDetector(
-        onTap: () => setState(() => isSelected = index),
-        child: Container(
-          margin: EdgeInsets.only(top: 5, right: 10),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color:
-                isSelected == index ? AppTheme.themeColor : Colors.transparent,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(),
-          ),
-          child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              child: Expanded(child: Image.asset('${imagePath}'))),
-        ),
-      );
-
-  Widget itemsTiles(String name, String price) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Container(
-        height: 70,
-        width: MediaQuery.sizeOf(context).width,
-        decoration: BoxDecoration(
-            color: AppTheme.skyBlueThemeColor,
-            borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('${name}', style: CustomTextStyles.mediumBlackColorStyle2),
-              Text(
-                '\$${price}',
-                style: CustomTextStyles.mediumGreyColorStyle,
-              )
+              SizedBox(height: 20),
+              Icon(
+                Icons.shopping_cart_rounded,
+                color: AppTheme.themeColor,
+                size: 70,
+              ),
+              OnlinePaymentTab()
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget paymentEntries() {
-    return Row(
-      children: [
-        TextFormField(
-          decoration: InputDecoration(label: Text("Card holder name")),
-        ),
-      ],
     );
   }
 
@@ -222,6 +84,124 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
             .toString()
             .split(' ')[0]; // Extracting only the date part
       });
+    }
+  }
+
+  Widget OnlinePaymentTab() {
+    return Form(
+      key: key,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Card Holder Name ",
+            style: CustomTextStyles.mediumBlackColorStyle2,
+          ),
+          CommonTextField(
+            controller: cardName,
+            validate: (val) {},
+            obsecureText: false,
+            hintText: 'John Doe',
+          ),
+          SizedBox(height: 20),
+          Text(
+            "Card Number: ",
+            style: CustomTextStyles.mediumBlackColorStyle2,
+          ),
+          CommonTextField(
+            controller: cardNoController,
+            validate: (val) {},
+            obsecureText: false,
+            hintText: '0000 0000 0000 0000',
+            icon: Icon(
+              Icons.credit_card,
+              color: AppTheme.themeColor,
+            ),
+          ),
+          SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Exp. Date",
+                      style: CustomTextStyles.mediumBlackColorStyle2,
+                    ),
+                    CommonTextField(
+                      controller: dateTimeController,
+                      validate: (val) {},
+                      obsecureText: false,
+                      icon: IconButton(
+                          onPressed: () {
+                            _selectDate();
+                          },
+                          icon: Icon(
+                            Icons.access_alarm,
+                            color: AppTheme.themeColor,
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 20),
+              Expanded(
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "CVV",
+                      style: CustomTextStyles.mediumBlackColorStyle2,
+                    ),
+                    CommonTextField(
+                      controller: cvvController,
+                      validate: (val) {},
+                      obsecureText: false,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+          CommonButton(
+            child: Text(
+              "Buy Now",
+              style: CustomTextStyles.commonButtonStyle,
+            ),
+            onPressed: () {
+              if (key.currentState!.validate()) {
+                saveOrderDetails();
+              }
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> saveOrderDetails() async {
+    try {
+      await FirebaseFirestore.instance.collection('orders').add({
+        'userId': currentUser!.uid,
+        'items': widget.items,
+        'deals': widget.deals,
+        'cardHolderName': cardName.text,
+        'cardNumber': cardNoController.text,
+        'expDate': dateTimeController.text,
+        'cvv': cvvController.text,
+        'orderDate': DateTime.now(),
+      });
+      await FirebaseFirestore.instance
+          .collection('carts')
+          .doc(currentUser!.uid)
+          .update({'items': [], 'deals': []});
+      Get.to(() => OrderPlacedSuccessfully());
+    } catch (e) {
+      print(e.toString());
     }
   }
 }
